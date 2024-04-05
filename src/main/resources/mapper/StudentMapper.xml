@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="redlib.backend.dao.StudentMapper">
+  <resultMap id="BaseResultMap" type="redlib.backend.model.Student">
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="studentName" jdbcType="VARCHAR" property="studentname" />
+    <result column="user_code" jdbcType="VARCHAR" property="userCode" />
+    <result column="sex" jdbcType="TINYINT" property="sex" />
+    <result column="parentName" jdbcType="VARCHAR" property="parentname" />
+    <result column="phone" jdbcType="VARCHAR" property="phone" />
+    <result column="classId" jdbcType="INTEGER" property="classid" />
+    <result column="created_by" jdbcType="INTEGER" property="createdBy" />
+    <result column="updated_by" jdbcType="INTEGER" property="updatedBy" />
+  </resultMap>
+
+  <sql id="Base_Column_List">
+    id, studentName, user_code, sex, parentName, phone, classId, created_by, updated_by
+  </sql>
+
+  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from student
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+
+  <insert id="insert" parameterType="redlib.backend.model.Student" keyProperty="id" useGeneratedKeys="true">
+    insert into student (id, studentName, user_code,
+                         sex, parentName, phone,
+                         classId, created_by, updated_by
+    )
+    values (#{id,jdbcType=INTEGER},
+            #{studentname,jdbcType=VARCHAR}, #{userCode,jdbcType=VARCHAR},
+            #{sex,jdbcType=TINYINT}, #{parentname,jdbcType=VARCHAR}, #{phone,jdbcType=VARCHAR},
+            #{classid,jdbcType=INTEGER}, #{createdBy,jdbcType=INTEGER}, #{updatedBy,jdbcType=INTEGER}
+           )
+  </insert>
+
+  <update id="updateByPrimaryKey" parameterType="redlib.backend.model.Student">
+    update student
+    set studentName = #{studentname,jdbcType=VARCHAR},
+        user_code         = #{userCode,jdbcType=VARCHAR},
+        sex   = #{sex,jdbcType=TINYINT},
+        parentName     = #{parentname,jdbcType=VARCHAR},
+        phone      = #{phone,jdbcType=VARCHAR},
+        classId      = #{classid,jdbcType=INTEGER}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+
+  <select id="count" resultType="integer">
+    select count(*)
+    from student
+    where 1
+      <if test="studentname != null">
+        and studentName like #{studentname}
+      </if>
+      <if test="userCode != null ">
+        and user_code like #{userCode}
+      </if>
+      <if test="classid != null and classid != 0">
+        and classId = #{classid}
+      </if>
+  </select>
+
+  <!-- 获取学生(分页) -->
+  <select id="list" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List"/>
+    from student
+    where 1
+    <if test="queryDTO.studentname != null">
+      and studentName like #{queryDTO.studentname}
+    </if>
+    <if test="queryDTO.userCode != null">
+      and user_code like #{queryDTO.userCode}
+    </if>
+    <if test="queryDTO.classid != null and queryDTO.classid != 0">
+      and classId = #{queryDTO.classid}
+    </if>
+
+    limit #{offset}, #{limit}
+  </select>
+
+  <!-- 批量删除 -->
+  <update id="deleteByCodes">
+    delete from student
+    where id in
+    <foreach item="item" index="index" collection="codeList" open="(" separator="," close=")">
+      #{item}
+    </foreach>
+  </update>
+
+  <!-- 根据id列表获取角色列表 -->
+  <select id="listByIds" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List"/>
+    from student
+    where id in
+    <foreach item="item" index="index" collection="ids" open="(" separator="," close=")">
+      #{item}
+    </foreach>
+  </select>
+
+
+  <select id="listClassId" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List"/>
+    from student
+  </select>
+
+  <select id="count_studentNum" resultType="integer">
+    select count(*)
+    from student
+    where 1
+    <if test="classid != null and classid != 0">
+      and classId = #{classid}
+    </if>
+  </select>
+
+  <select id="getByUserCode" resultMap="BaseResultMap" parameterType="java.lang.String">
+    select
+    <include refid="Base_Column_List"/>
+    from student
+    where user_code = #{userCode}
+  </select>
+
+</mapper>

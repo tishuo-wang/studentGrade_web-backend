@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="redlib.backend.dao.GradeMapper">
+  <resultMap id="BaseResultMap" type="redlib.backend.model.Grade">
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="name" jdbcType="VARCHAR" property="name" />
+    <result column="user_code" jdbcType="VARCHAR" property="userCode" />
+    <result column="classId" jdbcType="VARCHAR" property="classid" />
+    <result column="Chinese_grade" jdbcType="REAL" property="chineseGrade" />
+    <result column="Math_grade" jdbcType="REAL" property="mathGrade" />
+    <result column="English_grade" jdbcType="REAL" property="englishGrade" />
+    <result column="recordTime" jdbcType="VARCHAR" property="recordtime" />
+    <result column="academicYear" jdbcType="VARCHAR" property="academicyear" />
+    <result column="term" jdbcType="VARCHAR" property="term" />
+    <result column="averageChinese" property="averageChinese" />
+    <result column="averageMath" property="averageMath" />
+    <result column="averageEnglish" property="averageEnglish" />
+  </resultMap>
+
+
+  <sql id="Base_Column_List">
+    id, name, user_code, classId, Chinese_grade, Math_grade, English_grade, recordTime, 
+    academicYear, term
+  </sql>
+
+  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from grade
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+
+  <insert id="insert" parameterType="redlib.backend.model.Grade" keyProperty="id" useGeneratedKeys="true">
+    insert into grade (id, name, user_code,
+                       classId, Chinese_grade, Math_grade,
+                       English_grade, recordTime, academicYear,
+                       term)
+    values (#{id,jdbcType=INTEGER}, #{name,jdbcType=VARCHAR}, #{userCode,jdbcType=VARCHAR},
+            #{classid,jdbcType=VARCHAR}, #{chineseGrade,jdbcType=REAL}, #{mathGrade,jdbcType=REAL},
+            #{englishGrade,jdbcType=REAL}, #{recordtime,jdbcType=VARCHAR}, #{academicyear,jdbcType=VARCHAR},
+            #{term,jdbcType=VARCHAR})
+  </insert>
+
+  <update id="updateByPrimaryKey" parameterType="redlib.backend.model.Grade">
+    update grade
+    set name = #{name,jdbcType=VARCHAR},
+        user_code = #{userCode,jdbcType=VARCHAR},
+        classId = #{classid,jdbcType=VARCHAR},
+        Chinese_grade = #{chineseGrade,jdbcType=REAL},
+        Math_grade = #{mathGrade,jdbcType=REAL},
+        English_grade = #{englishGrade,jdbcType=REAL},
+        recordTime = #{recordtime,jdbcType=VARCHAR},
+        academicYear = #{academicyear,jdbcType=VARCHAR},
+        term = #{term,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+
+  <!-- 批量删除 -->
+  <update id="deleteByCodes">
+    delete from grade
+    where id in
+    <foreach item="item" index="index" collection="codeList" open="(" separator="," close=")">
+      #{item}
+    </foreach>
+  </update>
+
+  <!-- 获取班级数据个数(分页) -->
+  <select id="count" resultType="integer">
+    select count(*)
+    from grade
+    where 1
+    <if test="userCode != null">
+      and user_code like #{userCode}
+    </if>
+    <if test="name != null ">
+      and name like #{name}
+    </if>
+    <if test="classid != null">
+      and classId like #{classid}
+    </if>
+    <if test="term != null">
+      and term like #{term}
+    </if>
+  </select>
+
+  <!-- 获取班级(分页) -->
+  <select id="list" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List"/>
+    from grade
+    where 1
+    <if test="queryDTO.userCode != null">
+      and user_code like #{queryDTO.userCode}
+    </if>
+    <if test="queryDTO.name != null ">
+      and name like #{queryDTO.name}
+    </if>
+    <if test="queryDTO.classid != null">
+      and classid like #{queryDTO.classid}
+    </if>
+    <if test="queryDTO.term != null">
+      and term like #{queryDTO.term}
+    </if>
+    limit #{offset}, #{limit}
+  </select>
+
+  <!-- 根据id列表获取班级列表 -->
+  <select id="listByIds" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List"/>
+    from grade
+    where id in
+    <foreach item="item" index="index" collection="ids" open="(" separator="," close=")">
+      #{item}
+    </foreach>
+  </select>
+
+  <!-- 获取均分 -->
+  <select id="count_aver" resultMap="BaseResultMap">
+    select classId,
+           sum(Chinese_grade)/count(*) AS averageChinese,
+           sum(Math_grade)/count(*) AS averageMath,
+           sum(English_grade)/count(*) AS averageEnglish,
+           (sum(Chinese_grade)+sum(Math_grade)+sum(English_grade))/count(*) AS total
+
+    from grade
+    <where>
+      <if test="academicyear != null">
+        and academicYear like #{academicyear}
+      </if>
+      <if test="term != null">
+        and term like #{term}
+      </if>
+    </where>
+    group by classId
+  </select>
+
+</mapper>
+
+

@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="redlib.backend.dao.ClassesMapper">
+  <resultMap id="BaseResultMap" type="redlib.backend.model.Classes">
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="user_code" jdbcType="VARCHAR" property="classid" />
+    <result column="className" jdbcType="VARCHAR" property="classname" />
+    <result column="teacherName" jdbcType="VARCHAR" property="teachername" />
+    <result column="teacherPhone" jdbcType="VARCHAR" property="teacherphone" />
+    <result column="position" jdbcType="VARCHAR" property="position" />
+    <result column="number" jdbcType="VARCHAR" property="number" />
+    <result column="created_at" jdbcType="TIMESTAMP" property="createdAt" />
+    <result column="updated_at" jdbcType="TIMESTAMP" property="updatedAt" />
+  </resultMap>
+
+  <sql id="Base_Column_List">
+    id, user_code, className, teacherName, teacherPhone, position, number, created_at, 
+    updated_at
+  </sql>
+
+  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from classes
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+
+  <insert id="insert" parameterType="redlib.backend.model.Classes" keyProperty="id" useGeneratedKeys="true">
+    insert into classes (id, user_code, className,
+                         teacherName, teacherPhone, position,
+                         number, created_at, updated_at
+    )
+    values (#{id,jdbcType=INTEGER}, #{classid,jdbcType=VARCHAR}, #{classname,jdbcType=VARCHAR},
+            #{teachername,jdbcType=VARCHAR}, #{teacherphone,jdbcType=VARCHAR}, #{position,jdbcType=VARCHAR},
+            #{number,jdbcType=VARCHAR}, #{createdAt,jdbcType=TIMESTAMP}, #{updatedAt,jdbcType=TIMESTAMP}
+           )
+  </insert>
+
+  <update id="updateByPrimaryKey" parameterType="redlib.backend.model.Classes">
+    update classes
+    set user_code = #{classid,jdbcType=VARCHAR},
+        className = #{classname,jdbcType=VARCHAR},
+        teacherName = #{teachername,jdbcType=VARCHAR},
+        teacherPhone = #{teacherphone,jdbcType=VARCHAR},
+        position = #{position,jdbcType=VARCHAR},
+        number = #{number,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+
+  <!-- 批量删除 -->
+  <update id="deleteByCodes">
+    delete from classes
+    where id in
+    <foreach item="item" index="index" collection="codeList" open="(" separator="," close=")">
+      #{item}
+    </foreach>
+  </update>
+
+  <!-- 获取班级数据个数(分页) -->
+  <select id="count" resultType="integer">
+    select count(*)
+    from classes
+    where 1
+    <if test="classid != null">
+      and user_code like #{classid}
+    </if>
+    <if test="teachername != null ">
+      and teacherName like #{teachername}
+    </if>
+    <if test="classname != null">
+      and className like #{classname}
+    </if>
+  </select>
+
+  <!-- 获取班级(分页) -->
+  <select id="list" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List"/>
+    from classes
+    where 1
+    <if test="queryDTO.classid != null">
+      and user_code like #{queryDTO.classid}
+    </if>
+    <if test="queryDTO.teachername != null ">
+      and teacherName like #{queryDTO.teachername}
+    </if>
+    <if test="queryDTO.classname != null">
+      and className like #{queryDTO.classname}
+    </if>
+    limit #{offset}, #{limit}
+  </select>
+
+  <!-- 根据id列表获取班级列表 -->
+  <select id="listByIds" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List"/>
+    from classes
+    where id in
+    <foreach item="item" index="index" collection="ids" open="(" separator="," close=")">
+      #{item}
+    </foreach>
+  </select>
+
+
+</mapper>
