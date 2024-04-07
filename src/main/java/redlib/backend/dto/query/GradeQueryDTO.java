@@ -12,11 +12,10 @@ import lombok.EqualsAndHashCode;
 @EqualsAndHashCode(callSuper = true)
 @Data
 public class GradeQueryDTO extends PageQueryDTO{
-    /**
-     * 模糊匹配
-     */
+
     private String userCode;
     private String name;
     private String classid;
     private String term;
+
 }

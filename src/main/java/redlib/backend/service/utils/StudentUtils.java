@@ -26,7 +26,6 @@ public class StudentUtils {
         Assert.notNull(studentDTO, "学生输入数据不能为空");
         Assert.hasText(studentDTO.getStudentname(), "学生名称不能为空");
 
-
     }
 
     /**

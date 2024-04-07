@@ -77,6 +77,7 @@ public class StudentServiceImpl implements StudentService {
         StudentUtils.validateStudent(studentDTO);
         Student student = studentMapper.getByUserCode(studentDTO.getUserCode());
         Assert.isNull(student, "学号已经存在，请另外指定一个");
+
         // 创建实体对象，用以保存到数据库
         student = new Student();
         // 将输入的字段全部复制到实体对象中
