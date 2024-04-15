@@ -3,6 +3,7 @@ package redlib.backend.dao;
 import org.apache.ibatis.annotations.Param;
 import redlib.backend.dto.query.ClassesQueryDTO;
 import redlib.backend.model.Classes;
+
 import java.util.List;
 
 
@@ -21,5 +22,7 @@ public interface ClassesMapper {
     void deleteByCodes(@Param("codeList") List<Integer> codeList);
 
     List<Classes> listByIds(@Param("ids") List<Integer> ids);
+
+    Classes getByUserCode(String classid);
 
 }

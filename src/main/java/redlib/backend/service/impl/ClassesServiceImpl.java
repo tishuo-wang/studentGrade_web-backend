@@ -5,32 +5,26 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
-import org.springframework.util.CollectionUtils;
 import redlib.backend.dao.ClassesMapper;
 import redlib.backend.dao.StudentMapper;
 import redlib.backend.dto.ClassesDTO;
-import redlib.backend.dto.StudentDTO;
 import redlib.backend.dto.query.ClassesQueryDTO;
 import redlib.backend.model.Classes;
 import redlib.backend.model.Page;
-import redlib.backend.model.Student;
 import redlib.backend.model.Token;
-import redlib.backend.service.AdminService;
 import redlib.backend.service.ClassesService;
 import redlib.backend.service.utils.ClassesUtils;
-import redlib.backend.service.utils.StudentUtils;
 import redlib.backend.utils.FormatUtils;
 import redlib.backend.utils.PageUtils;
 import redlib.backend.utils.ThreadContextHolder;
 import redlib.backend.utils.XlsUtils;
 import redlib.backend.vo.ClassesVO;
-import redlib.backend.vo.StudentVO;
 
 import java.io.InputStream;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Collectors;
+
 
 @Service
 public class ClassesServiceImpl implements ClassesService {
@@ -75,8 +69,11 @@ public class ClassesServiceImpl implements ClassesService {
         Token token = ThreadContextHolder.getToken();
         // 校验输入数据正确性
         ClassesUtils.validateClasses(classesDTO);
+
+        Classes classes = classesMapper.getByUserCode(classesDTO.getClassid());
+        Assert.isNull(classes, "班级号已经存在");
         // 创建实体对象，用以保存到数据库
-        Classes classes = new Classes();
+        classes = new Classes();
         // 将输入的字段全部复制到实体对象中
         BeanUtils.copyProperties(classesDTO, classes);
         classes.setCreatedAt(new Date());
@@ -102,6 +99,12 @@ public class ClassesServiceImpl implements ClassesService {
         // 校验输入数据正确性
         ClassesUtils.validateClasses(classesDTO);
         Assert.notNull(classesDTO.getId(), "id不能为空");
+
+        Classes existingClass = classesMapper.getByUserCode(classesDTO.getClassid());
+        if (existingClass != null && !Objects.equals(existingClass.getId(), classesDTO.getId())) {
+            throw new IllegalArgumentException("班级号已存在");
+        }
+
         Classes classes = classesMapper.selectByPrimaryKey(classesDTO.getId());
         Assert.notNull(classes, "没有找到，Id为：" + classesDTO.getId());
         BeanUtils.copyProperties(classesDTO, classes);

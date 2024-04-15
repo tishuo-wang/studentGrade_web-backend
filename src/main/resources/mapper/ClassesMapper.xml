@@ -101,5 +101,10 @@
     </foreach>
   </select>
 
-
+  <select id="getByUserCode" resultMap="BaseResultMap" parameterType="java.lang.String">
+    select
+    <include refid="Base_Column_List"/>
+    from classes
+    where user_code = #{classid}
+  </select>
 </mapper>

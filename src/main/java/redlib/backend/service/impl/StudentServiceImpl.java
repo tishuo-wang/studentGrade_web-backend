@@ -106,6 +106,11 @@ public class StudentServiceImpl implements StudentService {
         StudentUtils.validateStudent(studentDTO);
         Assert.notNull(studentDTO.getId(), "id不能为空");
 
+        Student existingStudent = studentMapper.getByUserCode(studentDTO.getUserCode());
+        if (existingStudent != null && !Objects.equals(existingStudent.getId(), studentDTO.getId())) {
+            throw new IllegalArgumentException("学号已存在");
+        }
+
         Student student = studentMapper.selectByPrimaryKey(studentDTO.getId());
         Assert.notNull(student, "没有找到，Id为：" + studentDTO.getId());
         BeanUtils.copyProperties(studentDTO, student);
